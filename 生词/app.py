@@ -3,13 +3,13 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
-# Cấu hình MySQL
-app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:Serena2103@localhost/pinyin_practice"
+# MySQL
+app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:yourpassword@localhost/pinyin_practice"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
 
-# Mô hình dữ liệu
+# Data model
 class ChineseWord(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     chinese_character = db.Column(db.String(10), nullable=False)
@@ -20,7 +20,7 @@ class PracticeHistory(db.Model):
     chinese_character = db.Column(db.String(10), nullable=False)
     correct = db.Column(db.Boolean, nullable=False)
 
-# Tạo bảng trong MySQL
+# CREATE TABLE on MySQL
 with app.app_context():
     db.create_all()
 
@@ -37,8 +37,8 @@ def get_words():
 @app.route("/submit", methods=["POST"])
 def submit():
     data = request.get_json()
-    chinese_character = data.get("chinese")  # Người dùng nhập chữ Hán
-    user_input = data.get("user_input")  # Chữ Hán mà user nhập vào để so sánh
+    chinese_character = data.get("chinese")  
+    user_input = data.get("user_input")  
 
     correct = chinese_character == user_input  # So sánh chữ Hán đúng không
 
