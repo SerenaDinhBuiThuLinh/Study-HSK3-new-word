@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luyện gõ Pinyin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 300px;
+        }
+        h1 {
+            color: #333;
+        }
+        #word-container {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        input {
+            width: 80%;
+            padding: 8px;
+            font-size: 16px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        p {
+            font-size: 18px;
+            color: #333;
+        }
+        .result {
+            font-size: 24px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Luyện gõ Pinyin</h1>
+        <div id="word-container"></div>
+        <input type="text" id="pinyin-input" placeholder="Nhập Pinyin">
+        <button onclick="checkAnswer()">Kiểm tra</button>
+        <p id="result" class="result"></p>
+    </div>
+
+    <script>
+        let currentWord = "";
+
+        async function loadWord() {
+            const response = await fetch("/get_words");
+            const words = await response.json();
+            const randomIndex = Math.floor(Math.random() * words.length);
+            currentWord = words[randomIndex];
+
+            document.getElementById("word-container").innerText = currentWord.chinese;
+        }
+
+        async function checkAnswer() {
+            const input = document.getElementById("pinyin-input").value;
+
+            // Kiểm tra nếu người dùng nhập gì đó
+            if (!input) {
+                alert("Vui lòng nhập Pinyin.");
+                return;
+            }
+
+            const response = await fetch("/submit", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    chinese: currentWord.chinese,
+                    user_input: input
+                })
+            });
+
+            const result = await response.json();
+            document.getElementById("result").innerText = result.correct ? "✅ Đúng!" : "❌ Sai!";
+            document.getElementById("pinyin-input").value = "";
+            setTimeout(loadWord, 1000);
+        }
+
+        window.onload = loadWord;
+    </script>
+</body>
+</html>
